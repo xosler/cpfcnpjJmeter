@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.0 r1840935">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="email" elementType="Argument">
+            <stringProp name="Argument.name">email</stringProp>
+            <stringProp name="Argument.value">daileonteste${__Random(1,99999,)}@teste.com</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath">/Users/esouza/Walmart/Jmeter/DriverSQL/sqljdbc4-4.0.jar</stringProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">3</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1370729701000</longProp>
+        <longProp name="ThreadGroup.end_time">1370729701000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.delayedStart">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <BeanShellSampler guiclass="BeanShellSamplerGui" testclass="BeanShellSampler" testname="CPF Generator" enabled="true">
+          <stringProp name="BeanShellSampler.query">import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.text.MaskFormatter;
+
+List listaAleatoria = new ArrayList();
+List listaNumMultiplicados = null;
+
+// Primeiro executamos os metodos de geracao
+for (int i = 0; i &lt; 9; i++) {
+	listaAleatoria.add((int) (Math.random() * 10));
+}
+
+listaNumMultiplicados = new ArrayList();
+int primeiroDigito;
+int totalSomatoria = 0;
+int restoDivisao;
+int peso = 10;
+
+// Para cada item na lista multiplicamos seu valor pelo seu peso
+for (int i = 0 ; i &lt; listaAleatoria.size() ; i++) {
+	listaNumMultiplicados.add((Integer)listaAleatoria.get(i) * peso);
+	peso--;
+}
+
+// Agora somamos todos os itens que foram multiplicados
+for (int i = 0 ; i &lt; listaNumMultiplicados.size() ; i++) {
+	totalSomatoria += (Integer)listaNumMultiplicados.get(i);
+}
+restoDivisao = (totalSomatoria % 11);
+
+// Se o resto da divisao for menor que 2 o primeiro digito sera 0, senao
+// subtraimos o numero 11 pelo resto da divisao
+if (restoDivisao &lt; 2) {
+	primeiroDigito = 0;
+} else {
+	primeiroDigito = 11 - restoDivisao;
+}
+
+// Apos gerar o primeiro digito o adicionamos a lista
+listaAleatoria.add(primeiroDigito);
+listaNumMultiplicados = new ArrayList();
+int segundoDigitos;
+int totalSomatorias = 0;
+int restoDivisaos;
+int pesos = 11;
+
+// Para cada item na lista multiplicamos seu valor pelo seu peso
+// (observe que com o aumento da lista o peso tambem aumenta)
+for (int i = 0 ; i &lt; listaAleatoria.size() ; i++) {
+	listaNumMultiplicados.add((Integer)listaAleatoria.get(i) * pesos);
+	pesos--;
+}
+
+// Agora somamos todos os itens que foram multiplicados
+for (int i = 0 ; i &lt; listaNumMultiplicados.size() ; i++) {
+	totalSomatorias += (Integer)listaNumMultiplicados.get(i);
+}
+
+restoDivisaos = (totalSomatorias % 11);
+
+// Se o resto da divisao for menor que 2 o segundo digito sera 0, senao
+// subtraimos o numero 11 pelo resto da divisao
+if (restoDivisaos &lt; 2) {
+	segundoDigitos = 0;
+} else {
+	segundoDigitos = 11 - restoDivisaos;
+}
+
+// Apos gerar o segundo digito o adicionamos a lista
+listaAleatoria.add(segundoDigitos);
+
+String cpf = &quot;&quot;;
+String texto = &quot;&quot;;
+
+/*
+ * Aqui vamos concatenar todos os valores da lista em uma string. Por
+ * que isso? Porque a formatacao que o ArrayList gera me
+ * impossibilitaria de usar a mascara, pois junto com os numeros gerados
+ * ele tambem gera caracteres especias. Ex.: a saída de uma lista de
+ * inteiros (de 1 a 5) seria essa: [1 , 2 , 3 , 4 , 5] Dessa forma o
+ * sistema geraria a excecao ParseException
+ */
+for (int i = 0 ; i &lt; listaAleatoria.size() ; i++) {
+	texto += listaAleatoria.get(i);
+}
+
+// Dentro do bloco try.. catch.. tentaremos adicionar uma mascara ao
+// nosso CPF
+try {
+	MaskFormatter mf = new MaskFormatter(&quot;###########&quot;);
+	mf.setValueContainsLiteralCharacters(false);
+	cpf = mf.valueToString(texto);
+} catch (Exception ex) {
+	ex.printStackTrace();
+}
+
+return cpf;</stringProp>
+          <stringProp name="BeanShellSampler.filename"></stringProp>
+          <stringProp name="BeanShellSampler.parameters"></stringProp>
+          <boolProp name="BeanShellSampler.resetInterpreter">true</boolProp>
+        </BeanShellSampler>
+        <hashTree>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">cpf</stringProp>
+            <stringProp name="RegexExtractor.regex">(.*)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">NOT FOUND</stringProp>
+            <stringProp name="RegexExtractor.match_number">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+        </hashTree>
+        <BeanShellSampler guiclass="BeanShellSamplerGui" testclass="BeanShellSampler" testname="CNPJ Gerador" enabled="true">
+          <stringProp name="BeanShellSampler.query">import java.util.ArrayList;
+import java.util.List;
+
+
+List listaAleatoria = new ArrayList();
+List listaPeso = new ArrayList();
+List listaNumMultiplicados = new ArrayList();
+List listaNumMultiplicados2 = new ArrayList();
+
+int primeiroDigito;
+int segundoDigito;
+int totalSomatoria = 0;
+int restoDivisao;
+
+// Primeiro executamos os metodos de geracao
+for (int i = 0; i &lt; 7; i++) {
+	listaAleatoria.add((int) (Math.random() * 10));
+}
+
+//Adiciona os três 0
+for (int i = 0; i &lt; 4; i++) {
+	listaAleatoria.add((int) 0 );
+}
+
+
+listaAleatoria.add((int) 1 );
+
+listaPeso.add((int) 5);
+listaPeso.add((int) 4);
+listaPeso.add((int) 3);
+listaPeso.add((int) 2);
+listaPeso.add((int) 9);
+listaPeso.add((int) 8);
+listaPeso.add((int) 7);
+listaPeso.add((int) 6);
+listaPeso.add((int) 5);
+listaPeso.add((int) 4);
+listaPeso.add((int) 3);
+listaPeso.add((int) 2);
+
+// Para cada item na lista multiplicamos seu valor pelo seu peso
+for (int i = 0 ; i &lt; listaAleatoria.size() ; i++) {
+	listaNumMultiplicados.add( listaAleatoria.get(i) * listaPeso.get(i) );
+}
+
+// Agora somamos todos os itens que foram multiplicados
+for (int i = 0 ; i &lt; listaNumMultiplicados.size() ; i++) {
+	totalSomatoria += (Integer)listaNumMultiplicados.get(i);
+}
+
+restoDivisao = (totalSomatoria % 11);
+
+if (restoDivisao &lt; 2) {
+	primeiroDigito = 0;
+} else {
+	primeiroDigito = 11 - restoDivisao;
+}
+
+//-----------------------Segundo Digito ---------------------------
+
+totalSomatoria = 0;
+restoDivisao = 0;
+listaAleatoria.add(primeiroDigito);
+listaPeso.add(0, (int) 6);
+
+for (int i = 0 ; i &lt; listaAleatoria.size() ; i++) {
+	listaNumMultiplicados2.add( listaAleatoria.get(i) * listaPeso.get(i) );
+}
+
+for (int i = 0 ; i &lt; listaNumMultiplicados2.size() ; i++) {
+	totalSomatoria += (Integer)listaNumMultiplicados2.get(i);
+}
+
+restoDivisao = (totalSomatoria % 11);
+
+if (restoDivisao &lt; 2) {
+	segundoDigito = 0;
+} else {
+	segundoDigito = 11 - restoDivisao;
+}
+
+listaAleatoria.add(segundoDigito);
+
+String cnpj=&quot;&quot;;
+
+for (int i = 0 ; i &lt; listaAleatoria.size() ; i++) {
+	cnpj += listaAleatoria.get(i);
+}
+
+return cnpj;</stringProp>
+          <stringProp name="BeanShellSampler.filename"></stringProp>
+          <stringProp name="BeanShellSampler.parameters"></stringProp>
+          <boolProp name="BeanShellSampler.resetInterpreter">true</boolProp>
+        </BeanShellSampler>
+        <hashTree>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">cnpj</stringProp>
+            <stringProp name="RegexExtractor.regex">(.*)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">NOT FOUND</stringProp>
+            <stringProp name="RegexExtractor.match_number">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <objProp>
+          <name></name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>false</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>false</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>true</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <hostname>true</hostname>
+            <threadCounts>true</threadCounts>
+            <sampleCount>true</sampleCount>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
